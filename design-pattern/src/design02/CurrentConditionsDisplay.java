@@ -1,12 +1,12 @@
 package design02;
 
-public class CurrentCoinditionsDisplay implements DisplayElement,Observer {
+public class CurrentConditionsDisplay implements DisplayElement,Observer {
 
     private Subject weatherData;
     private float humidity;
     private float temperature;
 
-    public CurrentCoinditionsDisplay(Subject weatherData){
+    public CurrentConditionsDisplay(Subject weatherData){
         this.weatherData = weatherData;
         weatherData.registerObserver(this);
     }
