@@ -140,7 +140,7 @@ PizzaStore就是一个高层组建，因为它是一个由其他低层组建定�
 抽象工厂：提供一个用来创建一个产品家族的抽象类型，这个类型的子类定义了产品被产生的方法，要使用这个工厂
 必须先实例化它，然后将它传入一些针对抽象类型所写的代码中。
 
-### 单间模式
+## 单件模式
 
 确保一个类只有一个实例，并提供一个全局访问点
 
@@ -212,3 +212,192 @@ PizzaStore就是一个高层组建，因为它是一个由其他低层组建定�
         }
 
 volatile关键词确保:当uniqueInstance变量被初始化成Singleton实例时，多个线程正确地处理uniqueInstance变量
+
+## 封装调用
+### 第一个命令对象
+#### 实现命令接口
+    
+    public interface Command {
+        public void execute();
+    }
+
+#### 实现一个打开电灯的命令
+    public class LightOnCommand implements Command {
+        Light light;
+        
+        public LightOnCommand(Light light){
+            this.light = light;
+        }
+        
+        public void execute(){
+            light.on();
+        }
+    }
+    
+#### 使用命令对象
+    public class SimpleRemoteControl {
+        Command slot;
+        
+        public SimpleRemoteControl(){}
+        
+        public void setCommand(Command command){
+            slot = command;
+        }
+        
+        public void buttonWasPressed(){
+            slot.execute();
+        }
+    }
+    
+#### 一个简单的测试
+
+    public class RemoteControlTest {
+    
+        public static void main(String[] args){
+            Light light = new Light();
+            Command lightOn = new LightOnCommand(light);
+            SimpleRemoteControl remote = new SimpleRemoteControl();
+            remote.setCommand(lightOn);
+            remote.buttonWasPressed();
+        }
+    }
+
+### 定义命令模式
+
+命令模式将 “请求” 封装成对象，以便使用不同的请求、队列或者日志来参数化其他对象。
+命令模式也支持可撤销的操作
+
+#### 实现遥控器
+
+    public class RemoteControl {
+        Command[] onCommands;
+        Command[] offCommands;
+        
+        public RemoteControl(){
+            onCommands = new Command[7];
+            offCommands = new Command[7];
+            
+            Command noCommand = new NoCommand();
+            for(int i =0; i<7;i++){
+            onCommand[i] = noCommand;
+            offCommand[i] = noCommand;}
+        }
+        
+        public void setCommand(int slot, Command onCommand, Command offCommand){
+            onCommands[slot] = onCommand;
+            offCommands[slot] = offCommand;
+        }
+        
+        public void onButtonWasPushed(int slot){
+            onCommands[slot].execute();
+        }
+        
+        public void offButtonWasPushed(int slot){
+            offCommands[slot].execute();
+        }
+        
+        public String toString(){
+            StringBuffer stringBuff = new StringBuffer();
+            stringBuff.append("\n ------Remote Control -----\n");
+            for(int i = 0; i < onCommands.length;i++){
+                stringBuff.append("[slot " + i +"]" + onCommands[i].getClass().getName() + "  " +  onCommands[i].getClass().getName() + "\n"); 
+            }
+            return stringBuff.toString();
+        }
+        
+    }
+   
+#### 命令模式的用途：队列请求
+
+实现命令接口的对象被放进队列
+线程从队列中一个个地删除命令对象，然后调用命令对象的execute()方法。一旦完成了，就会再去处理下一个新的命令对象。
+工作队列类和进行计算的对象之间完全是解耦的。此刻线程可能在进行财务运算，下一刻却在读取网络数据。
+工作队列对象不在乎到底做些什么，他们只知道取出命令对象，然后调用其execute()方法。
+
+#### 要点
+
+当需要将发出请求的对象和执行请求的对象解耦的时候，使用命令模式。
+命令模式--将请求封装成对象，这可以让你使用不同的请求、队列或者日志请求来参数化其他对象，这可以让你
+使用不同的请求、队列，或者日志请求来参数化其他对象。命令模式也可以支持撤销操作。
+
+## 适配器模式与外观模式
+
+OO适配器：将一个借口转换成另一个接口，以符合客户的期望。
+
+    public interface Duck {
+        public void quake();
+        public void fly();
+    }
+    
+    public interface Turkey {
+        public void gobble();
+        public void fly();
+    }
+
+假如我们要用Turkey冒充是Duck对象
+
+    public class TurkeyAdapter implements Duck {
+        Turkey turkey;
+        
+        public TurkeyAdapter(Turkey turkey){
+            this.turkey = turkey;
+        }
+        
+        public void fly() {
+            turkey.fly();
+        }
+        
+        public void quake() {
+            turkey.gobble();
+        }
+    }
+
+### 定义适配器模式
+
+适配器模式将一个类的接口，转换成客户期望的另一个接口。适配器让原本接口不兼容的类可以合作无间。
+
+### 外观模式
+
+外观模式改变接口的原因是为了简化接口。
+在提供简化的接口的同时，依然将系统完整的功能暴露出来，以供需要的人使用。
+
+子系统可以创建许多个外观。
+
+外观不只是简化了接口，也将客户从组件的子系统中解耦。
+
+#### OO原则
+“最少知识” 原则：只和你的密友谈话。
+
+就任何对象而言，在该对象的方法内，我们只应该调用属于以下范围的方法：
++ 该对象本身
++ 被当做方法的参数而传递进来的对象
++ 此方法所创建或实例化的任何对象
++ 独享的任何组件
+
+不采用这个原则：
+    
+    public float getTemp(){
+        Thermometer thermometer = station.getThermometer();
+        return thermometer.getTemperature();
+    }
+
+采用这个原则：
+
+    public float getTemp(){
+        return station.getTemperature();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
