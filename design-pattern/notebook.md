@@ -5,7 +5,7 @@
 主题（可观察者）用一个共同的接口来更新观察者  
 观察者和可观察者之间用松耦合方式结合，可观察者不知道观察者的细节，只知道观察者实现了观察者接口
 
-### 装饰者模式
+## 装饰者模式
 设计原则：类应该对扩展开放，对修改关闭  
 遵循开放-关闭原则  
 
@@ -15,3 +15,33 @@
 被装饰者可以在所委托被装饰者的行为之前与/或之后，加上自己的行为，以达到特定的目的。 
 
 
+## 工厂模式
+所有工厂模式都用来封装对象的创建  
+工厂方法模式通过让子类决定该创建的对象是什么，来达到将对象创建的过程封装的目的。
+
+###定义
+工厂方法模式定义了一个创建对象的接口，但由子类决定要实例化的类是哪一个。工厂方法让类把实例化推迟到子类。
+在编写创建者类时，不需要知道实际创建的产品是哪一个。选择了那个子类，自然就决定了实际创建的产品是什么。
+
+###依赖倒置
+要依赖抽象，不要依赖具体类
+
+当PizzaStore直接实例化一个对象时，就是在依赖它的具体类，这个PizzaStore依赖于所有的比萨对象，因为它直接创建这些
+披萨对象。每增加一个披萨种类，就等于让PizzaStore多了一个依赖。
+
+    public class PizzaStore {
+        SimplePizzaFactory factory;
+
+    public PizzaStore(SimplePizzaFactory factory){
+        this.factory = factory;
+    }
+
+    public Pizza orderPizza(String type){
+        Pizza pizza;
+        pizza = factory.createPizza(type);
+        pizza.prepare();
+        pizza.bake();
+        return pizza;
+    }
+    }
+    
