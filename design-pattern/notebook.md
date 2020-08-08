@@ -387,6 +387,140 @@ OO适配器：将一个借口转换成另一个接口，以符合客户的期望
         return station.getTemperature();
     }
 
+## 模板方法模式
+封装算法
+
+*模板方法模式*在一个方法中定义一个算法的股价，而将一些步骤延迟到子类中。模板方法使得子类可以在不改变算法
+结构的情况下，重新定义算法中的某些步骤。
+
+    abstract class AbstractClass {
+        final void templateMethod(){
+            primitiveOperation1();
+            primitiveOperation2();
+            concreteOperation();
+            hook();
+        }
+        
+        abstract  void primitiveOperation1();
+        abstract  void primitiveOperation2();
+        final void concreteOperation(){};
+        void hook(){};
+    }
+    
+hook() 钩子方法。子类可以视情况决定要不要覆盖他们。
+
+### 对模板进行挂钩
+
+钩子是一种在抽象类中声名的方法。但只有空或者默认的实现。
+钩子的存在，可以让子类有能力对算法的不同点进行挂钩。要不要挂钩，由子类自行决定。
+
+#### 使用钩子
+    public abstract  class CaffeineBeverageWithHook {
+        
+        void prepareRecipe(){
+            boilWater();
+            brew();
+            pourInCup();
+            if(customerWantsCondiments()){
+                addCondiments();
+            }
+        }
+        
+        abstract void brew();
+        
+        abstract void addCondiments();
+        
+        void boilWater(){
+            System.out.println("Boiling water");
+        }
+        
+        void pourInCup(){
+            System.out.println("Pouring into cup");
+        }
+        
+        boolean customerWantsCondiments(){
+            return true;
+        }
+    }
+    
+#### 使用钩子
+
+    public class CoffeWithHook extends CaffeineBeverageWithHook {
+        
+        public void brew(){
+            System.out.println("Dripping Coffee through filter");
+        };
+        
+        public void addCondiments(){
+            System.out.println("Adding Sugar and Milk");
+        }
+        
+        public boolean customerWantsCondiments(){
+            String answer = getUserInput();
+            if (answer.toLowerCase().startsWith("y")){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        
+        private String getUserInput(){
+            String answer = null;
+            System.out.print("Would you like milk and sugar with your coffee (y/n)? ");
+    
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            try{
+                answer = in.readLine();
+            }catch (IOException ioe){
+                System.err.println("IO error tyring to read your answer");
+            }
+            if ( answer == null){
+                return "no";
+            }
+            return answer;
+        }
+    }
+
+#### 钩子的目的
++ 让子类实现算法中可选的部分
++ 在钩子对于子类的实现并不重要的时候，子类可以对此钩子置之不理。
++ 钩子让子类能够有机会对模板方法中某些即将发生的（或者刚刚发生的）步骤做出反应。
+
+
+### 好莱坞原则
+原则：别调用我们，我们会调用你
+我们允许低层组件将自己挂钩到系统上，但是高层组件会决定什么时候和怎么样使用这些低层组件。
+
+使用钩子的例子
+
+    public class MyFrame extends JFrame {
+    
+        public MyFrame(String title){
+            super(title);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    
+            this.setSize(300,300);
+            this.setVisible(true);
+        }
+    
+        public void paint(Graphics graphics){
+            super.paint(graphics);
+            String msg = "I rule!!!";
+            graphics.drawString(msg, 100, 100);
+        }
+    
+        public static void main(String[] args){
+            MyFrame myFrame = new MyFrame("Head First Design Patterns");
+        }
+        
+    }
+
+## 迭代器与组合模式
+依赖于一个名为迭代器的接口。有hasNext(),next()方法。
+一旦我们有了这个接口，就可以为各种对象集合实现迭代数：数组、列表、散列表等
+
+迭代器模式提供一种方法顺序访问一个聚合对象中的各个元素，而又不暴露其内部的表示。
+
 
 
 
