@@ -23,7 +23,7 @@ public class Soy extends CondimentDecorator {
         }else if(getSize() == beverage.GRANDE){
             cost += .15;
         }else if (getSize() == beverage.VENTI){
-            cost += .20;
+            cost += .10;
         }
         return cost;
     }
