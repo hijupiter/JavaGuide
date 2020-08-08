@@ -140,3 +140,75 @@ PizzaStore就是一个高层组建，因为它是一个由其他低层组建定�
 抽象工厂：提供一个用来创建一个产品家族的抽象类型，这个类型的子类定义了产品被产生的方法，要使用这个工厂
 必须先实例化它，然后将它传入一些针对抽象类型所写的代码中。
 
+### 单间模式
+
+确保一个类只有一个实例，并提供一个全局访问点
+
+    public class Singleton {
+        private static Singleton uniqueInstance;
+        private Singleton(){}
+        public static Singleton getInstance(){
+            if (uniqueInstance == null){
+                uniqueInstance = new Singleton();
+            }
+            return uniqueInstance;
+        }
+    }
+
+会出现一个问题，多线程的时候可能同时执行getInstance，使得两个线程同时被执行
+        
+        public class Singleton {
+            private static Singleton uniqueInstance;
+            private Singleton(){}
+            public static synchronized Singleton getInstance(){
+                if (uniqueInstance == null){
+                    uniqueInstance = new Singleton();
+                }
+                return uniqueInstance;
+            }
+        }
+        
+加入同步锁之后效率会下降，其实我们只需要在第一次执行此方法的时候，才需要真正的同步。
+使用“急切”创建实例代替“延迟”实例化的做法
+
+        public class Singleton {
+            private static Singleton uniqueInstance = new Singleton();
+            
+            private Singleton(){}
+            
+            public static synchronized Singleton getInstance(){
+                return uniqueInstance;
+            }
+        }
+
+在静态初始化器中创建单件。这段代码保证了线程安全。JVM在加载这个类时会马上创建此唯一的单件实例。JVM保证
+在任何线程访问uniqueInstance静态变量之前，一定要先创建此实例。
+        
+        public class Singleton {
+            private static Singleton uniqueInstance = new Singleton();
+            
+            private Singleton(){}
+            
+            public static synchronized Singleton getInstance(){
+                return uniqueInstance;
+            }
+        }
+        
+另一种技巧是，使用 “双重检查加锁”， 在getInstance()中减少使用同步
+
+        public class Singleton {
+            private volatile static Singleton uniqueInstance;
+            
+            private Singleton(){}
+            
+            public static Singleton getInstance(){
+                if(uniqueInstance==null){
+                synchronized(Singleton.class){
+                if (uniqueInstance == null){
+                    uniqueInstance = new Singleton();}
+                 }}
+                 return unqiueInstance;   
+            }       
+        }
+
+volatile关键词确保:当uniqueInstance变量被初始化成Singleton实例时，多个线程正确地处理uniqueInstance变量
